@@ -14,35 +14,16 @@ void ofApp::setup() {
     camFramerate = settings.getValue("settings:cam_framerate", 30);
     ofSetFrameRate(appFramerate);
 
-    syncVideoQuality = settings.getValue("settings:osc_video_quality", 3); 
     videoColor = (bool) settings.getValue("settings:video_color", 0); 
     
-    width = settings.getValue("settings:width", 640);
+    width = settings.getValue("settings:width", 720);
     height = settings.getValue("settings:height", 480);
     ofSetWindowShape(width, height);
 
     debug = (bool) settings.getValue("settings:debug", 1);
-
-    sendOsc = (bool) settings.getValue("settings:send_osc", 1); 
-    sendWs = (bool) settings.getValue("settings:send_ws", 1); 
-    sendHttp = (bool) settings.getValue("settings:send_http", 1); 
-    sendMjpeg = (bool) settings.getValue("settings:send_mjpeg", 1); 
     
-    syncVideo = (bool) settings.getValue("settings:sync_video", 0); 
-    blobs = (bool) settings.getValue("settings:blobs", 1);
-    contours = (bool) settings.getValue("settings:contours", 0); 
     contourSlices = settings.getValue("settings:contour_slices", 10); 
-    brightestPixel = (bool) settings.getValue("settings:brightest_pixel", 0); 
 
-    oscHost = settings.getValue("settings:osc_host", "127.0.0.1");
-    oscPort = settings.getValue("settings:osc_port", 7110);
-    streamPort = settings.getValue("settings:stream_port", 7111);
-    wsPort = settings.getValue("settings:ws_port", 7112);
-    postPort = settings.getValue("settings:post_port", 7113);
-
-    debug = (bool) settings.getValue("settings:debug", 1);
-    rpiCamVersion = settings.getValue("settings:rpi_cam_version", 1);
-    stillCompression = settings.getValue("settings:still_compression", 100);
 
     // camera
     if (videoColor) {
@@ -71,27 +52,6 @@ void ofApp::setup() {
     cam.setExposureCompensation(camExposureCompensation);
     cam.setShutterSpeed(camShutterSpeed);
     //cam.setFrameRate // not implemented in ofxCvPiCam 
-
-    // ~ ~ ~   get a persistent name for this computer   ~ ~ ~
-    // a randomly generated id
-    uniqueId = "RPi";
-    file.open(ofToDataPath("unique_id.txt"), ofFile::ReadWrite, false);
-    ofBuffer buff;
-    if (file) { // use existing file if it's there
-        buff = file.readToBuffer();
-        uniqueId = buff.getText();
-    } else { // otherwise make a new one
-        uniqueId += "_" + ofGetTimestampString("%y%m%d%H%M%S%i");
-        ofStringReplace(uniqueId, "\n", "");
-        ofStringReplace(uniqueId, "\r", "");
-        buff.set(uniqueId.c_str(), uniqueId.size());
-        ofBufferToFile("unique_id.txt", buff);
-    }
-   
-    // the actual RPi hostname
-    ofSystem("cp /etc/hostname " + ofToDataPath("DocumentRoot/js/"));
-    hostName = ofSystem("cat /etc/hostname");
-    hostName.pop_back(); // last char is \n
     
     fbo.allocate(width, height, GL_RGBA);
     pixels.allocate(width, height, OF_IMAGE_COLOR);
@@ -119,7 +79,7 @@ void ofApp::update() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-    ofBackground(0);
+    ofBackground(255,0,0);
 
     if(!frame.empty()) {
         if (debug) {
