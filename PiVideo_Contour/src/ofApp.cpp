@@ -18,12 +18,16 @@ void ofApp::setup() {
     
     width = settings.getValue("settings:width", 720);
     height = settings.getValue("settings:height", 480);
+    camWidth = settings.getValue("settings:cam_width", 640);
+    camHeight = settings.getValue("settings:cam_height", 480);
     ofSetWindowShape(width, height);
 
     debug = (bool) settings.getValue("settings:debug", 1);
     
+    lineWidth = settings.getValue("settings:line_width", 10); 
+    alphaVal = settings.getValue("settings:alpha_val", 255); 
     contourSlices = settings.getValue("settings:contour_slices", 10); 
-
+    drawWireframe = (bool) settings.getValue("settings:draw_wireframe", 0); 
 
     // camera
     if (videoColor) {
@@ -32,7 +36,7 @@ void ofApp::setup() {
         gray.allocate(width, height, OF_IMAGE_GRAYSCALE);        
     }
     
-    cam.setup(640, 480, camFramerate, videoColor); // color/gray;
+    cam.setup(camWidth, camHeight, camFramerate, videoColor); // color/gray;
 
     camRotation = settings.getValue("settings:cam_rotation", 0); 
     camSharpness = settings.getValue("settings:sharpness", 0); 
@@ -53,8 +57,8 @@ void ofApp::setup() {
     cam.setShutterSpeed(camShutterSpeed);
     //cam.setFrameRate // not implemented in ofxCvPiCam 
     
-    fbo.allocate(width, height, GL_RGBA);
-    pixels.allocate(width, height, OF_IMAGE_COLOR);
+    fbo.allocate(camWidth, camHeight, GL_RGBA);
+    pixels.allocate(camWidth, camHeight, OF_IMAGE_COLOR);
         
     thresholdValue = settings.getValue("settings:threshold", 127); 
     contourThreshold = 2.0;
@@ -79,15 +83,16 @@ void ofApp::update() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-    ofBackground(255,0,0);
-
+    ofBackground(0);
+    
     if(!frame.empty()) {
+        fbo.begin();
+        ofClear(0,0,0,0);
+        
         if (debug) {
-            drawMat(frameProcessed, 0, 0);
-            ofSetLineWidth(2);
-            ofNoFill();
+            drawMat(frame, 0, 0);
         }
-
+                   
         int contourCounter = 0;
         unsigned char * pixels = gray.getPixels().getData();
         int gw = gray.getWidth();
@@ -95,17 +100,71 @@ void ofApp::draw() {
         for (int h=0; h<255; h += int(255/contourSlices)) {
             contourFinder.setThreshold(h);
             contourFinder.findContours(frame);
-            contourFinder.draw();            
+            //contourFinder.draw();            
 
             int n = contourFinder.size();
-            for (int i = 0; i < n; i++) {
-                ofPolyline line = contourFinder.getPolyline(i);
+            for (int h = 0; h < n; h++) {
+                ofPolyline line = contourFinder.getPolyline(h);
                 vector<glm::vec3> cvPoints = line.getVertices();
-
-                int x = int(cvPoints[0].x);
-                int y = int(cvPoints[0].y);
-                cout << x << " " << y;
+                
+                int index = cvPoints.size() / 2;
+                int x = int(cvPoints[index].x);
+                int y = int(cvPoints[index].y);
                 ofColor col = pixels[x + y * gw];
+                
+                /*
+                ofSetColor(col);
+                ofSetLineWidth(8);
+                ofNoFill();
+                ofBeginShape();
+                for (int j=0; j<cvPoints.size(); j++) {
+                    ofVertex(cvPoints[j].x, cvPoints[j].y);
+                }   
+                ofEndShape();
+                */
+                
+                ofMesh meshy;
+                meshy.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);    
+                
+                float widthSmooth = 10;
+                float angleSmooth;
+                
+                for (int i = 0; i < cvPoints.size(); i++) {
+                    int me_m_one = i - 1;
+                    int me_p_one = i + 1;
+                    if (me_m_one < 0) me_m_one = 0;
+                    if (me_p_one ==  cvPoints.size()) me_p_one = cvPoints.size() - 1;
+                    
+                    ofPoint diff = cvPoints[me_p_one] - cvPoints[me_m_one];
+                    float angle = atan2(diff.y, diff.x);
+                    
+                    if (i == 0) {
+                        angleSmooth = angle;
+                    } else {
+                        angleSmooth = ofLerpDegrees(angleSmooth, angle, 1.0);
+                    }
+                    
+                    float dist = diff.length();
+                    
+                    float w = ofMap(dist, 0, 20, lineWidth, 2, true); //40, 2, true);
+                    
+                    widthSmooth = 0.9f * widthSmooth + 0.1f * w;
+                    
+                    ofPoint offset;
+                    offset.x = cos(angleSmooth + PI/2) * widthSmooth;
+                    offset.y = sin(angleSmooth + PI/2) * widthSmooth;
+
+                    meshy.addVertex(cvPoints[i] + offset);
+                    meshy.addVertex(cvPoints[i] - offset);
+                }
+                
+                ofSetColor(col, alphaVal);
+                meshy.draw();
+                if (drawWireframe) {
+                    ofSetColor(col);
+                    meshy.drawWireframe();
+                }
+                        
                 /*
                 float colorData[3]; 
                 colorData[0] = col.r;
@@ -124,15 +183,16 @@ void ofApp::draw() {
                 char const * pPoints = reinterpret_cast<char const *>(pointsData);
                 std::string pointsString(pPoints, pPoints + sizeof pointsData);
                 contourPointsBuffer.set(pointsString); 
-                */
-                
-                ofSetColor(255);
-                line.draw();
-                    
+                */             
+                   
                 contourCounter++;
             }        
         }
+
+        fbo.end();       
     }
+
+    fbo.draw(0,0,width,height);
 
     if (debug) {
         stringstream info;

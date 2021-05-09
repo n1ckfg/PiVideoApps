@@ -12,7 +12,10 @@ class ofApp : public ofBaseApp {
 	void update();
 	void draw();
 		
-	int width, height, appFramerate, camFramerate;
+	int width, height, camWidth, camHeight, appFramerate, camFramerate;
+	int alphaVal;
+	float lineWidth;
+	bool drawWireframe;
 	
 	ofFile file;
 	ofxXmlSettings settings;

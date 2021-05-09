@@ -3,10 +3,15 @@
     <app_framerate>60</app_framerate>
     <cam_framerate>40</cam_framerate>
     <cam_rotation>0</cam_rotation>
+    <cam_width>640</cam_width>
+    <cam_height>480</cam_height>
     <width>720</width>
     <height>480</height>
-    <debug>1</debug>
+    <debug>0</debug>
     <!-- * -->
+    <line_width>6</line_width>
+    <alpha_val>160</alpha_val>
+    <draw_wireframe>1</draw_wireframe>
     <video_color>0</video_color>
     <contour_slices>10</contour_slices>
     <threshold>0</threshold>
