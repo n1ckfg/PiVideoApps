@@ -4,19 +4,19 @@
 //========================================================================
 int main() {
 	
-	int w = 720;
-	int h = 480;
+    int w = 720;
+    int h = 480;
 	
-	// setup the GL context
+    // setup the GL context
 #ifdef TARGET_OPENGLES
-	ofGLESWindowSettings settings;
-	settings.glesVersion = 2;
-	settings.setSize(w, h);
-	ofCreateWindow(settings);
+    ofGLESWindowSettings settings;
+    settings.glesVersion = 2;
+    settings.setSize(w, h);
+    ofCreateWindow(settings);
 #else
     ofGLFWWindowSettings settings;
     settings.numSamples = 0;
-	settings.setSize(w, h);
+    settings.setSize(w, h);
     ofCreateWindow(settings);                       
 #endif
 

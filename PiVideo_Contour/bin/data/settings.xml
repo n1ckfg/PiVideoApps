@@ -5,16 +5,16 @@
     <cam_rotation>0</cam_rotation>
     <width>720</width>
     <height>480</height>
-    <debug>0</debug>
+    <debug>1</debug>
     <!-- * -->
     <video_color>0</video_color>
-    <contour_slices>1</contour_slices>
-    <threshold>120</threshold>
+    <contour_slices>10</contour_slices>
+    <threshold>0</threshold>
     <sharpness>50</sharpness>
-	<contrast>0</contrast>
-	<brightness>55</brightness>
-	<iso>800</iso>
-	<exposure_mode>0</exposure_mode>
+    <contrast>0</contrast>
+    <brightness>55</brightness>
+    <iso>800</iso>
+    <exposure_mode>0</exposure_mode>
     <exposure_compensation>0</exposure_compensation>
-	<shutter_speed>100000</shutter_speed>
+    <shutter_speed>100000</shutter_speed>
 </settings>

@@ -32,7 +32,7 @@ void ofApp::setup() {
         gray.allocate(width, height, OF_IMAGE_GRAYSCALE);        
     }
     
-    cam.setup(width, height, camFramerate, videoColor); // color/gray;
+    cam.setup(640, 480, camFramerate, videoColor); // color/gray;
 
     camRotation = settings.getValue("settings:cam_rotation", 0); 
     camSharpness = settings.getValue("settings:sharpness", 0); 
@@ -104,7 +104,9 @@ void ofApp::draw() {
 
                 int x = int(cvPoints[0].x);
                 int y = int(cvPoints[0].y);
+                cout << x << " " << y;
                 ofColor col = pixels[x + y * gw];
+                /*
                 float colorData[3]; 
                 colorData[0] = col.r;
                 colorData[1] = col.g;
@@ -112,7 +114,7 @@ void ofApp::draw() {
                 char const * pColor = reinterpret_cast<char const *>(colorData);
                 std::string colorString(pColor, pColor + sizeof colorData);
                 contourColorBuffer.set(colorString); 
-
+                
                 float pointsData[cvPoints.size() * 2]; 
                 for (int j=0; j<cvPoints.size(); j++) {
                     int index = j * 2;
@@ -122,7 +124,11 @@ void ofApp::draw() {
                 char const * pPoints = reinterpret_cast<char const *>(pointsData);
                 std::string pointsString(pPoints, pPoints + sizeof pointsData);
                 contourPointsBuffer.set(pointsString); 
-
+                */
+                
+                ofSetColor(255);
+                line.draw();
+                    
                 contourCounter++;
             }        
         }
