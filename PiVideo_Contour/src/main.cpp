@@ -4,7 +4,7 @@
 //========================================================================
 int main() {
 	
-	int w = 640;
+	int w = 720;
 	int h = 480;
 	
 	// setup the GL context
@@ -14,15 +14,15 @@ int main() {
 	settings.setSize(w, h);
 	ofCreateWindow(settings);
 #else
-        ofGLFWWindowSettings settings;
-        settings.numSamples = 0;
+    ofGLFWWindowSettings settings;
+    settings.numSamples = 0;
 	settings.setSize(w, h);
-        ofCreateWindow(settings);                       
+    ofCreateWindow(settings);                       
 #endif
 
-        // this kicks off the running of my app
-        // can be OF_WINDOW or OF_FULLSCREEN
-        // pass in width and height too:
-        ofRunApp( new ofApp());
+    // this kicks off the running of my app
+    // can be OF_WINDOW or OF_FULLSCREEN
+    // pass in width and height too:
+    ofRunApp(new ofApp());
 
 }
