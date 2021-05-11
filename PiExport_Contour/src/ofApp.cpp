@@ -23,7 +23,6 @@ void ofApp::setup() {
     ofSetWindowShape(width, height);
 
     debug = (bool) settings.getValue("settings:debug", 1);
-    camAutoSettings = (bool) settings.getValue("settings:cam_auto_settings", 1);
     
     lineWidth = settings.getValue("settings:line_width", 10); 
     alphaVal = settings.getValue("settings:alpha_val", 255); 
@@ -36,31 +35,7 @@ void ofApp::setup() {
     } else {
         gray.allocate(width, height, OF_IMAGE_GRAYSCALE);        
     }
-    
-    cam.setup(camWidth, camHeight, camFramerate, videoColor); // color/gray;
-
-    camRotation = settings.getValue("settings:cam_rotation", 0); 
-    camSharpness = settings.getValue("settings:sharpness", 0); 
-    camContrast = settings.getValue("settings:contrast", 0); 
-    camBrightness = settings.getValue("settings:brightness", 50); 
-    camIso = settings.getValue("settings:iso", 300); 
-    camExposureMode = settings.getValue("settings:exposure_mode", 0); 
-    camExposureCompensation = settings.getValue("settings:exposure_compensation", 0); 
-    camShutterSpeed = settings.getValue("settings:shutter_speed", 0);
-
-    cam.setRotation(camRotation);
-    
-    if (!camAutoSettings) {
-        cam.setSharpness(camSharpness);
-        cam.setContrast(camContrast);
-        cam.setBrightness(camBrightness);
-        cam.setISO(camIso);
-        cam.setExposureMode((MMAL_PARAM_EXPOSUREMODE_T) camExposureMode);
-        cam.setExposureCompensation(camExposureCompensation);
-        cam.setShutterSpeed(camShutterSpeed);   
-        //cam.setFrameRate // not implemented in ofxCvPiCam 
-    }
-
+      
     fbo.allocate(camWidth, camHeight, GL_RGBA);
     pixels.allocate(camWidth, camHeight, OF_IMAGE_COLOR);
         
@@ -115,18 +90,7 @@ void ofApp::draw() {
                 int x = int(cvPoints[index].x);
                 int y = int(cvPoints[index].y);
                 ofColor col = pixels[x + y * gw];
-                
-                /*
-                ofSetColor(col);
-                ofSetLineWidth(8);
-                ofNoFill();
-                ofBeginShape();
-                for (int j=0; j<cvPoints.size(); j++) {
-                    ofVertex(cvPoints[j].x, cvPoints[j].y);
-                }   
-                ofEndShape();
-                */
-                
+                               
                 ofMesh meshy;
                 meshy.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);    
                 
@@ -167,27 +131,7 @@ void ofApp::draw() {
                 if (drawWireframe) {
                     ofSetColor(col);
                     meshy.drawWireframe();
-                }
-                        
-                /*
-                float colorData[3]; 
-                colorData[0] = col.r;
-                colorData[1] = col.g;
-                colorData[2] = col.b;
-                char const * pColor = reinterpret_cast<char const *>(colorData);
-                std::string colorString(pColor, pColor + sizeof colorData);
-                contourColorBuffer.set(colorString); 
-                
-                float pointsData[cvPoints.size() * 2]; 
-                for (int j=0; j<cvPoints.size(); j++) {
-                    int index = j * 2;
-                    pointsData[index] = cvPoints[j].x;
-                    pointsData[index+1] = cvPoints[j].y;
-                }
-                char const * pPoints = reinterpret_cast<char const *>(pointsData);
-                std::string pointsString(pPoints, pPoints + sizeof pointsData);
-                contourPointsBuffer.set(pointsString); 
-                */             
+                }                              
                    
                 contourCounter++;
             }        
