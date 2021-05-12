@@ -127,8 +127,8 @@ void ofApp::draw() {
                 ofEndShape();
                 */
                 
-                ofMesh meshy;
-                meshy.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);    
+                ofMesh mesh;
+                mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);    
                 
                 float widthSmooth = 10;
                 float angleSmooth;
@@ -158,15 +158,15 @@ void ofApp::draw() {
                     offset.x = cos(angleSmooth + PI/2) * widthSmooth;
                     offset.y = sin(angleSmooth + PI/2) * widthSmooth;
 
-                    meshy.addVertex(cvPoints[i] + offset);
-                    meshy.addVertex(cvPoints[i] - offset);
+                    mesh.addVertex(cvPoints[i] + offset);
+                    mesh.addVertex(cvPoints[i] - offset);
                 }
                 
                 ofSetColor(col, alphaVal);
-                meshy.draw();
+                mesh.draw();
                 if (drawWireframe) {
                     ofSetColor(col);
-                    meshy.drawWireframe();
+                    mesh.drawWireframe();
                 }
                         
                 /*

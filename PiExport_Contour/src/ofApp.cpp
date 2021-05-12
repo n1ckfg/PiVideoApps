@@ -10,13 +10,17 @@ void ofApp::setup() {
     ofSetVerticalSync(false);
     ofHideCursor();
     
-    inputUrl = ofToDataPath("bin/data/input");
-    outputUrl = ofToDataPath("bin/data/output");
-    ofDirectory tempDir(inputUrl);
-    inputDir = tempDir;
+    inputUrl = "input";
+    outputUrl = "output";
+    ofDirectory inputDir(inputUrl);
     inputDir.allowExt(inputFileType);
     inputDir.listDir();
     inputDir.sort();
+    for (int i=0; i<inputDir.size(); i++) {
+        string url = inputDir.getPath(i);
+        cout << "Found " << url << endl;
+        inputUrls.push_back(url);
+    }
     
     appFramerate = settings.getValue("settings:app_framerate", 60);
     ofSetFrameRate(appFramerate);
@@ -35,16 +39,6 @@ void ofApp::setup() {
     alphaVal = settings.getValue("settings:alpha_val", 255); 
     contourSlices = settings.getValue("settings:contour_slices", 10); 
     drawWireframe = (bool) settings.getValue("settings:draw_wireframe", 0); 
-
-    // camera
-    if (videoColor) {
-        gray.allocate(width, height, OF_IMAGE_COLOR);
-    } else {
-        gray.allocate(width, height, OF_IMAGE_GRAYSCALE);        
-    }
-      
-    fbo.allocate(camWidth, camHeight, GL_RGBA);
-    pixels.allocate(camWidth, camHeight, OF_IMAGE_COLOR);
         
     thresholdValue = settings.getValue("settings:threshold", 127); 
     contourThreshold = 2.0;
@@ -60,10 +54,14 @@ void ofApp::setup() {
 void ofApp::update() {
     //timestamp = (int) ofGetSystemTimeMillis();
     
-    if (counter < inputDir.size()) {
-        string url = inputDir.getPath(counter);
+    if (counter < inputUrls.size()) {
+        gray.load(inputUrls[counter]);
+        pixels.allocate(gray.getWidth(), gray.getHeight(), OF_IMAGE_COLOR);
+        frame = toCv(gray.getPixels());
+        
+        fbo.allocate(gray.getWidth(), gray.getHeight(), GL_RGBA);
+        
         counter++;
-        gray.load(url);
     }
 }
 
@@ -93,8 +91,8 @@ void ofApp::draw() {
             int y = int(cvPoints[index].y);
             ofColor col = pixels[x + y * gw];
                            
-            ofMesh meshy;
-            meshy.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+            ofMesh mesh;
+            mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
             
             float widthSmooth = 10;
             float angleSmooth;
@@ -124,15 +122,15 @@ void ofApp::draw() {
                 offset.x = cos(angleSmooth + PI/2) * widthSmooth;
                 offset.y = sin(angleSmooth + PI/2) * widthSmooth;
 
-                meshy.addVertex(cvPoints[i] + offset);
-                meshy.addVertex(cvPoints[i] - offset);
+                mesh.addVertex(cvPoints[i] + offset);
+                mesh.addVertex(cvPoints[i] - offset);
             }
             
             ofSetColor(col, alphaVal);
-            meshy.draw();
+            mesh.draw();
             if (drawWireframe) {
                 ofSetColor(col);
-                meshy.drawWireframe();
+                mesh.drawWireframe();
             }
                
             contourCounter++;
@@ -141,5 +139,8 @@ void ofApp::draw() {
 
     fbo.end();
 
-    fbo.draw(0,0,width,height);
+    gray.draw(0, 0, width/2, height);
+    fbo.draw(width/2, 0, width, height);
+    
+    ofSaveScreen(ofFilePath::join(outputUrl, ofToString(counter)) + "." + outputFileType);
 }

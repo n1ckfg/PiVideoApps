@@ -12,11 +12,11 @@ class ofApp : public ofBaseApp {
 		void draw();
 	
 		int counter = 0;
-		string inputFileType = "png";
+		string inputFileType = "jpg";
 		string outputFileType = "png";
 		bool finished = false;
-        ofDirectory inputDir;
         string inputUrl, outputUrl;
+        vector<string> inputUrls;
 		int width, height, camWidth, camHeight, appFramerate;
 		int alphaVal;
 		float lineWidth;
