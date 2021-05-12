@@ -11,7 +11,6 @@ void ofApp::setup() {
     ofHideCursor();
 
     appFramerate = settings.getValue("settings:app_framerate", 60);
-    camFramerate = settings.getValue("settings:cam_framerate", 30);
     ofSetFrameRate(appFramerate);
 
     videoColor = (bool) settings.getValue("settings:video_color", 0); 
@@ -53,7 +52,7 @@ void ofApp::setup() {
 void ofApp::update() {
     timestamp = (int) ofGetSystemTimeMillis();
     
-    frame = cam.grab();
+    //frame = cam.grab();
 
     if (!frame.empty()) {
         toOf(frame, gray.getPixelsRef());
@@ -141,10 +140,4 @@ void ofApp::draw() {
     }
 
     fbo.draw(0,0,width,height);
-
-    if (debug) {
-        stringstream info;
-        info << cam.width << "x" << cam.height << " @ "<< ofGetFrameRate() <<"fps"<< "\n";
-        ofDrawBitmapStringHighlight(info.str(), 10, 10, ofColor::black, ofColor::yellow);
-    }
 }
