@@ -9,7 +9,15 @@ void ofApp::setup() {
     
     ofSetVerticalSync(false);
     ofHideCursor();
-
+    
+    inputUrl = ofToDataPath("bin/data/input");
+    outputUrl = ofToDataPath("bin/data/output");
+    ofDirectory tempDir(inputUrl);
+    inputDir = tempDir;
+    inputDir.allowExt(inputFileType);
+    inputDir.listDir();
+    inputDir.sort();
+    
     appFramerate = settings.getValue("settings:app_framerate", 60);
     ofSetFrameRate(appFramerate);
 
@@ -50,12 +58,12 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::update() {
-    timestamp = (int) ofGetSystemTimeMillis();
+    //timestamp = (int) ofGetSystemTimeMillis();
     
-    //frame = cam.grab();
-
-    if (!frame.empty()) {
-        toOf(frame, gray.getPixelsRef());
+    if (counter < inputDir.size()) {
+        string url = inputDir.getPath(counter);
+        counter++;
+        gray.load(url);
     }
 }
 
@@ -63,81 +71,75 @@ void ofApp::update() {
 void ofApp::draw() {
     ofBackground(0);
     
-    if(!frame.empty()) {
-        fbo.begin();
-        ofClear(0,0,0,0);
-        
-        if (debug) {
-            drawMat(frame, 0, 0);
-        }
-                   
-        int contourCounter = 0;
-        unsigned char * pixels = gray.getPixels().getData();
-        int gw = gray.getWidth();
+    fbo.begin();
+    ofClear(0,0,0,0);
+               
+    int contourCounter = 0;
+    unsigned char * pixels = gray.getPixels().getData();
+    int gw = gray.getWidth();
 
-        for (int h=0; h<255; h += int(255/contourSlices)) {
-            contourFinder.setThreshold(h);
-            contourFinder.findContours(frame);
-            //contourFinder.draw();            
+    for (int h=0; h<255; h += int(255/contourSlices)) {
+        contourFinder.setThreshold(h);
+        contourFinder.findContours(frame);
+        //contourFinder.draw();
 
-            int n = contourFinder.size();
-            for (int h = 0; h < n; h++) {
-                ofPolyline line = contourFinder.getPolyline(h);
-                vector<glm::vec3> cvPoints = line.getVertices();
+        int n = contourFinder.size();
+        for (int h = 0; h < n; h++) {
+            ofPolyline line = contourFinder.getPolyline(h);
+            vector<glm::vec3> cvPoints = line.getVertices();
+            
+            int index = cvPoints.size() / 2;
+            int x = int(cvPoints[index].x);
+            int y = int(cvPoints[index].y);
+            ofColor col = pixels[x + y * gw];
+                           
+            ofMesh meshy;
+            meshy.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+            
+            float widthSmooth = 10;
+            float angleSmooth;
+            
+            for (int i = 0; i < cvPoints.size(); i++) {
+                int me_m_one = i - 1;
+                int me_p_one = i + 1;
+                if (me_m_one < 0) me_m_one = 0;
+                if (me_p_one ==  cvPoints.size()) me_p_one = cvPoints.size() - 1;
                 
-                int index = cvPoints.size() / 2;
-                int x = int(cvPoints[index].x);
-                int y = int(cvPoints[index].y);
-                ofColor col = pixels[x + y * gw];
-                               
-                ofMesh meshy;
-                meshy.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);    
+                ofPoint diff = cvPoints[me_p_one] - cvPoints[me_m_one];
+                float angle = atan2(diff.y, diff.x);
                 
-                float widthSmooth = 10;
-                float angleSmooth;
-                
-                for (int i = 0; i < cvPoints.size(); i++) {
-                    int me_m_one = i - 1;
-                    int me_p_one = i + 1;
-                    if (me_m_one < 0) me_m_one = 0;
-                    if (me_p_one ==  cvPoints.size()) me_p_one = cvPoints.size() - 1;
-                    
-                    ofPoint diff = cvPoints[me_p_one] - cvPoints[me_m_one];
-                    float angle = atan2(diff.y, diff.x);
-                    
-                    if (i == 0) {
-                        angleSmooth = angle;
-                    } else {
-                        angleSmooth = ofLerpDegrees(angleSmooth, angle, 1.0);
-                    }
-                    
-                    float dist = diff.length();
-                    
-                    float w = ofMap(dist, 0, 20, lineWidth, 2, true); //40, 2, true);
-                    
-                    widthSmooth = 0.9f * widthSmooth + 0.1f * w;
-                    
-                    ofPoint offset;
-                    offset.x = cos(angleSmooth + PI/2) * widthSmooth;
-                    offset.y = sin(angleSmooth + PI/2) * widthSmooth;
-
-                    meshy.addVertex(cvPoints[i] + offset);
-                    meshy.addVertex(cvPoints[i] - offset);
+                if (i == 0) {
+                    angleSmooth = angle;
+                } else {
+                    angleSmooth = ofLerpDegrees(angleSmooth, angle, 1.0);
                 }
                 
-                ofSetColor(col, alphaVal);
-                meshy.draw();
-                if (drawWireframe) {
-                    ofSetColor(col);
-                    meshy.drawWireframe();
-                }                              
-                   
-                contourCounter++;
-            }        
-        }
+                float dist = diff.length();
+                
+                float w = ofMap(dist, 0, 20, lineWidth, 2, true); //40, 2, true);
+                
+                widthSmooth = 0.9f * widthSmooth + 0.1f * w;
+                
+                ofPoint offset;
+                offset.x = cos(angleSmooth + PI/2) * widthSmooth;
+                offset.y = sin(angleSmooth + PI/2) * widthSmooth;
 
-        fbo.end();       
+                meshy.addVertex(cvPoints[i] + offset);
+                meshy.addVertex(cvPoints[i] - offset);
+            }
+            
+            ofSetColor(col, alphaVal);
+            meshy.draw();
+            if (drawWireframe) {
+                ofSetColor(col);
+                meshy.drawWireframe();
+            }
+               
+            contourCounter++;
+        }
     }
+
+    fbo.end();
 
     fbo.draw(0,0,width,height);
 }

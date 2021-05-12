@@ -15,8 +15,8 @@ class ofApp : public ofBaseApp {
 		string inputFileType = "png";
 		string outputFileType = "png";
 		bool finished = false;
-
-		string url;
+        ofDirectory inputDir;
+        string inputUrl, outputUrl;
 		int width, height, camWidth, camHeight, appFramerate;
 		int alphaVal;
 		float lineWidth;
