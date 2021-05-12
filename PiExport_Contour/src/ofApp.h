@@ -25,8 +25,8 @@ class ofApp : public ofBaseApp {
 		ofFile file;
 		ofxXmlSettings settings;
 
-		ofFbo fbo;
-		ofPixels pixels;
+		ofFbo fbo1, fbo2;
+		ofPixels outputPixels;
 		int rpiCamVersion; // 0 for not an RPi cam, 1, 2, or 3
 		string lastPhotoTakenName;
 		int stillCompression;
