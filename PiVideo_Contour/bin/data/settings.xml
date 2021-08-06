@@ -10,8 +10,8 @@
     <debug>0</debug>
     <cam_auto_settings>1</cam_auto_settings>
     <!-- * -->
-    <line_width>6</line_width>
-    <alpha_val>160</alpha_val>
+    <line_width>2</line_width>
+    <alpha_val>127</alpha_val>
     <draw_wireframe>1</draw_wireframe>
     <video_color>0</video_color>
     <contour_slices>10</contour_slices>
