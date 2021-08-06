@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <settings>
     <app_framerate>60</app_framerate>
-    <cam_framerate>40</cam_framerate>
+    <cam_framerate>30</cam_framerate>
     <cam_rotation>0</cam_rotation>
-    <cam_width>640</cam_width>
-    <cam_height>480</cam_height>
+    <cam_width>320</cam_width>
+    <cam_height>240</cam_height>
     <width>720</width>
     <height>480</height>
     <debug>0</debug>
